@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FileText, Mail, Lock, Eye, EyeOff, Loader2, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import API_BASE_URL from '../services/api';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,39 +23,39 @@ const handleSubmit = async (e: React.FormEvent) => {
   setIsSubmitting(true);
 
   try {
-    const response = await fetch("${API_BASE_URL}/api/auth/login", {
-      method: "POST",
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ email, password }),
     });
 
-    if (!response.ok) {
-      const data = await response.json();
-      throw new Error(data.message || "Login failed");
-    }
+    // ✅ Read response safely
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : null;
 
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.message || 'Login failed');
+    }
 
     // backend returns { token, userId }
     const user = {
       id: data.userId,
-      name: "", // backend doesn't send name, you can fetch /me later
+      name: '',
       email,
     };
 
-    // update context
     login(data.token, user);
+    navigate('/', { replace: true });
 
-    // redirect to home
-    navigate("/", { replace: true });
   } catch (err: any) {
     setError(err.message || 'Invalid email or password. Please try again.');
   } finally {
     setIsSubmitting(false);
   }
 };
+
 
 
   return (
