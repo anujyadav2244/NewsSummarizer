@@ -27,7 +27,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "${app.allowed.origins:https://newssummarizer-09dn.onrender.com}", allowCredentials = "true")
+@CrossOrigin(origins = "${app.allowed.origins}", allowCredentials = "true")
 public class AuthController {
 
     @Autowired
@@ -59,8 +59,8 @@ public class AuthController {
 
             // send OTP
             if (emailService != null) {
-                emailService.sendOtpEmail(user.getEmail(), otp);
-            }
+    emailService.sendOtpEmail(user.getEmail(), otp);
+}
 
             userRepository.save(user);
             return ResponseEntity.ok(Map.of("message", "OTP sent to email!"));
