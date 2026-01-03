@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, FileText, Loader2, CheckCircle, Download, Copy 
+  ArrowLeft, FileText, Loader2, CheckCircle, Download, Copy
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 
 interface Article {
   url: string;
@@ -29,7 +28,6 @@ function SummarizePage() {
   const navigate = useNavigate();
   const url = searchParams.get('url');
   
-  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [article, setArticle] = useState<Article | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);

@@ -1,46 +1,56 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FileText, Mail, Lock, Eye, EyeOff, Loader2, ArrowLeft, User, CheckCircle, AlertCircle } from 'lucide-react';
-import axios from 'axios';
-import API_BASE_URL from '../services/api';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FileText,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  User,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+
+import api from "../services/api";
 
 function SignupPage() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
   const validateForm = () => {
     if (!formData.name.trim()) {
-      setError('Please enter your full name');
+      setError("Please enter your full name");
       return false;
     }
     if (!formData.email.trim()) {
-      setError('Please enter your email address');
+      setError("Please enter your email address");
       return false;
     }
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return false;
     }
     return true;
@@ -48,33 +58,33 @@ function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
 
     if (!validateForm()) return;
 
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/auth/register`,
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password
-        },
-        { withCredentials: true }
+  
+      const response = await api.post("/api/auth/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      setMessage(
+        response.data.message ||
+          "Registration successful! Check your email for OTP."
       );
 
-      setMessage(response.data.message || 'Registration successful! Check your email for OTP.');
-
       // ✅ Redirect user to verify-otp page after successful signup
-      navigate('/verify-otp', { state: { email: formData.email } });
+      navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
-        setError('Failed to create account. Please try again.');
+        setError("Failed to create account. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -82,11 +92,14 @@ function SignupPage() {
   };
 
   const getPasswordStrength = (password: string) => {
-    if (password.length === 0) return { strength: 0, label: '', color: '' };
-    if (password.length < 6) return { strength: 25, label: 'Weak', color: 'bg-red-500' };
-    if (password.length < 8) return { strength: 50, label: 'Fair', color: 'bg-yellow-500' };
-    if (password.length < 12) return { strength: 75, label: 'Good', color: 'bg-blue-500' };
-    return { strength: 100, label: 'Strong', color: 'bg-green-500' };
+    if (password.length === 0) return { strength: 0, label: "", color: "" };
+    if (password.length < 6)
+      return { strength: 25, label: "Weak", color: "bg-red-500" };
+    if (password.length < 8)
+      return { strength: 50, label: "Fair", color: "bg-yellow-500" };
+    if (password.length < 12)
+      return { strength: 75, label: "Good", color: "bg-blue-500" };
+    return { strength: 100, label: "Strong", color: "bg-green-500" };
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
@@ -94,8 +107,6 @@ function SignupPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-       
-
         {/* Signup Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-teal-600"></div>
@@ -105,8 +116,12 @@ function SignupPage() {
             <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <FileText className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-            <p className="text-gray-600">Join ArticleAI and start summarizing articles</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Create Account
+            </h1>
+            <p className="text-gray-600">
+              Join ArticleAI and start summarizing articles
+            </p>
           </div>
 
           {/* Error Message */}
@@ -129,7 +144,10 @@ function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name */}
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Full Name
               </label>
               <div className="relative">
@@ -149,7 +167,10 @@ function SignupPage() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <div className="relative">
@@ -169,13 +190,16 @@ function SignupPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
                   value={formData.password}
@@ -189,7 +213,11 @@ function SignupPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
 
@@ -203,7 +231,9 @@ function SignupPage() {
                         style={{ width: `${passwordStrength.strength}%` }}
                       ></div>
                     </div>
-                    <span className="text-xs font-medium text-gray-600">{passwordStrength.label}</span>
+                    <span className="text-xs font-medium text-gray-600">
+                      {passwordStrength.label}
+                    </span>
                   </div>
                 </div>
               )}
@@ -211,13 +241,16 @@ function SignupPage() {
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Confirm Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
                   name="confirmPassword"
                   value={formData.confirmPassword}
@@ -231,16 +264,25 @@ function SignupPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
 
-
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isSubmitting || !formData.name || !formData.email || !formData.password || !formData.confirmPassword}
+              disabled={
+                isSubmitting ||
+                !formData.name ||
+                !formData.email ||
+                !formData.password ||
+                !formData.confirmPassword
+              }
               className="w-full bg-gradient-to-r from-blue-600 to-teal-600 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               {isSubmitting ? (
@@ -260,7 +302,7 @@ function SignupPage() {
           {/* Sign In Link */}
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link
                 to="/login"
                 className="text-blue-600 hover:text-blue-800 font-semibold transition-colors"

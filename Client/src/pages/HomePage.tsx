@@ -4,10 +4,7 @@ import {
   Link as LinkIcon,
   FileText,
   ArrowRight,
-  Sparkles,
-  Zap,
-  Target,
-  CheckCircle,
+  Sparkles
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import API_BASE_URL from "../services/api";

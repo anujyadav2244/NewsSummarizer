@@ -1,79 +1,76 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FileText, Mail, Lock, Eye, EyeOff, Loader2, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import API_BASE_URL from '../services/api';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FileText,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import api from "../services/api";
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  const from = location.state?.from?.pathname || '/';
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
-  setIsSubmitting(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
 
-    // ✅ Read response safely
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : null;
+      const data = response.data;
 
-    if (!response.ok) {
-      throw new Error(data?.message || 'Login failed');
+      const user = {
+        id: data.userId,
+        name: "",
+        email,
+      };
+
+      login(data.token, user);
+      navigate("/", { replace: true });
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          "Invalid email or password. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // backend returns { token, userId }
-    const user = {
-      id: data.userId,
-      name: '',
-      email,
-    };
-
-    login(data.token, user);
-    navigate('/', { replace: true });
-
-  } catch (err: any) {
-    setError(err.message || 'Invalid email or password. Please try again.');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
-
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-teal-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Back Button */}
-        
 
         {/* Login Card */}
         <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-teal-600"></div>
-          
+
           {/* Header */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <FileText className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome Back
+            </h1>
             <p className="text-gray-600">Sign in to your ArticleAI account</p>
           </div>
 
@@ -88,7 +85,10 @@ const handleSubmit = async (e: React.FormEvent) => {
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <div className="relative">
@@ -106,13 +106,16 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Password
               </label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -125,11 +128,14 @@ const handleSubmit = async (e: React.FormEvent) => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
-
 
             <button
               type="submit"
@@ -153,7 +159,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           {/* Sign Up Link */}
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link
                 to="/signup"
                 className="text-blue-600 hover:text-blue-800 font-semibold transition-colors"
