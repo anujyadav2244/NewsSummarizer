@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Link as LinkIcon, FileText, ArrowRight, Sparkles } from "lucide-react";
+import {
+  Link as LinkIcon,
+  FileText,
+  ArrowRight,
+  Sparkles
+} from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import API_BASE_URL from "../services/api";
 
@@ -26,12 +31,23 @@ function HomePage() {
         throw new Error("You must be logged in to summarize articles.");
       }
 
-      const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!url.trim()) return;
+      const response = await fetch(`${API_BASE_URL}/api/summarize/url`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ url }),
+      });
 
-        navigate(`/summarize?url=${encodeURIComponent(url)}`);
-      };
+      const text = await response.text(); // ✅ SAFE
+      const data = text ? JSON.parse(text) : null;
+
+      if (!response.ok) {
+        throw new Error(data?.message || "Failed to summarize article");
+      }
+
+      setSummary(data.summary);
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
