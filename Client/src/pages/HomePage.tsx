@@ -10,6 +10,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import API_BASE_URL from "../services/api";
 
 function HomePage() {
   const [url, setUrl] = useState("");
@@ -28,14 +29,12 @@ function HomePage() {
     setSummary(null);
 
     try {
-      const token = localStorage.getItem("token"); // JWT saved after login
+      const token = localStorage.getItem("token");
       if (!token) {
-        setError("You must be logged in to summarize articles.");
-        setLoading(false);
-        return;
+        throw new Error("You must be logged in to summarize articles.");
       }
 
-      const response = await fetch("${API_BASE_URL}/api/summarize/url", {
+      const response = await fetch(`${API_BASE_URL}/api/summarize/url`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,11 +43,13 @@ function HomePage() {
         body: JSON.stringify({ url }),
       });
 
+      const text = await response.text(); // ✅ SAFE
+      const data = text ? JSON.parse(text) : null;
+
       if (!response.ok) {
-        throw new Error("Failed to summarize article");
+        throw new Error(data?.message || "Failed to summarize article");
       }
 
-      const data = await response.json();
       setSummary(data.summary);
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -68,7 +69,9 @@ function HomePage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">ArticleAI</h1>
-              <p className="text-sm text-gray-600">AI-Powered News Summarizer</p>
+              <p className="text-sm text-gray-600">
+                AI-Powered News Summarizer
+              </p>
             </div>
           </div>
 
@@ -151,7 +154,9 @@ function HomePage() {
             </form>
 
             {error && (
-              <p className="mt-6 text-red-600 text-center font-medium">{error}</p>
+              <p className="mt-6 text-red-600 text-center font-medium">
+                {error}
+              </p>
             )}
 
             {summary && (
