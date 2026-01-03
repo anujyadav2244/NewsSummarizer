@@ -35,7 +35,7 @@ function HomePage() {
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/summarize/url", {
+      const response = await fetch("${API_BASE_URL}/api/summarize/url", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

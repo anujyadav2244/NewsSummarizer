@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Mail, Lock, Eye, EyeOff, Loader2, ArrowLeft, User, CheckCircle, AlertCircle } from 'lucide-react';
 import axios from 'axios';
+import API_BASE_URL from '../services/api';
 
 function SignupPage() {
   const [formData, setFormData] = useState({
@@ -56,7 +57,7 @@ function SignupPage() {
 
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/auth/register',
+        `${API_BASE_URL}/api/auth/register`,
         {
           name: formData.name,
           email: formData.email,

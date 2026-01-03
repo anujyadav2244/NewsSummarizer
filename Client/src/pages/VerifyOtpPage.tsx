@@ -8,6 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 import axios from "axios";
+import API_BASE_URL from "../services/api";
 
 function VerifyOtpPage() {
   const location = useLocation();
@@ -35,7 +36,7 @@ function VerifyOtpPage() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/auth/verify-otp",
+        `${API_BASE_URL}/api/auth/verify-otp`,
         { email: emailFromSignup, otp },
         { withCredentials: true }
       );
